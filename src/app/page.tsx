@@ -1,66 +1,58 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { StaffDashboard } from '@/components/attendance/StaffDashboard';
+import { AdminDashboard } from '@/components/admin/AdminDashboard';
+import { useRole } from '@/hooks/useRole';
+import { User } from '@/types';
+
+const MOCK_USERS: Record<'staff' | 'admin', User> = {
+  staff: {
+    id: 'u_1',
+    name: 'Alex Johnson',
+    email: 'alex.j@precision.inc',
+    role: 'staff',
+    department: 'Engineering',
+    avatar: 'AJ',
+  },
+  admin: {
+    id: 'adm_1',
+    name: 'Sarah Wilson',
+    email: 'sarah.w@precision.inc',
+    role: 'admin',
+    department: 'Operations',
+    avatar: 'SW',
+  }
+};
+
+export default function HomePage() {
+  const { role } = useRole();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent Hydration Mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null; // Or a specific skeleton loader
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={role} // Key triggers the animation when role changes
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="w-full"
+      >
+        {role === 'staff' ? (
+          <StaffDashboard user={MOCK_USERS.staff} />
+        ) : (
+          <AdminDashboard user={MOCK_USERS.admin} />
+        )}
+      </motion.div>
+    </AnimatePresence>
   );
 }
