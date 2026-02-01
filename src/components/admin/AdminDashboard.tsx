@@ -15,6 +15,7 @@ import { adminService } from '@/lib/services/adminService';
 import { EmployeeTable } from './EmployeeTable';
 import { DashboardStats } from './DashboardStats';
 import { toast } from 'sonner';
+import { downloadAttendanceCSV } from '@/lib/utils';
 
 interface AdminDashboardProps {
   user: User;
@@ -90,6 +91,32 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
       <RefreshCw className="w-5 h-5" />
     </button>
   );
+
+  const handleExport = () => {
+    if (attendanceData.length === 0) {
+      toast.error('No data available to export');
+      return;
+    }
+
+    try {
+      // Filter data based on current view (optional: or export all)
+      // For this implementation, we export the filtered view to match user expectation
+      const dataToExport = filter === 'all' 
+        ? attendanceData 
+        : processedData.flatMap(emp => 
+            attendanceData.filter(r => r.userId === emp.id)
+          );
+
+      toast.info('Generating report...');
+      
+      downloadAttendanceCSV(dataToExport, 'workforce_report');
+      
+      toast.success('Report downloaded successfully');
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to generate CSV');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50/50">
@@ -172,7 +199,10 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
                 <Filter className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
              </div>
 
-             <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-sm active:transform active:scale-95">
+             <button 
+               onClick={handleExport}
+               className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-sm active:transform active:scale-95"
+             >
                 <Download className="h-4 w-4" />
                 <span className="hidden sm:inline">Export CSV</span>
              </button>
