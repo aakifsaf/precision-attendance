@@ -2,8 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Component Imports
 import { StaffDashboard } from '@/components/attendance/StaffDashboard';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
+import { LandingPage } from '@/components/LandingPage';
+import { RoleSwitcher } from '@/components/layout/RoleSwitcher';
+
+// Hooks & Types
 import { useRole } from '@/hooks/useRole';
 import { User } from '@/types';
 
@@ -14,45 +20,61 @@ const MOCK_USERS: Record<'staff' | 'admin', User> = {
     email: 'alex.j@precision.inc',
     role: 'staff',
     department: 'Engineering',
-    avatar: 'AJ',
+    avatar: 'https://ui-avatars.com/api/?name=Alex+Johnson&background=0D8ABC&color=fff',
   },
   admin: {
-    id: 'adm_1',
+    id: 'u_admin_01',
     name: 'Sarah Wilson',
     email: 'sarah.w@precision.inc',
     role: 'admin',
     department: 'Operations',
-    avatar: 'SW',
+    avatar: 'https://ui-avatars.com/api/?name=Sarah+Wilson&background=9333ea&color=fff',
   }
 };
 
 export default function HomePage() {
-  const { role } = useRole();
+  const { role, setRole } = useRole();
   const [mounted, setMounted] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
 
   // Prevent Hydration Mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // Or a specific skeleton loader
+  if (!mounted) return null;
+
+  if (!hasEntered) {
+    return (
+      <LandingPage 
+        onLogin={(selectedRole) => {
+          setRole(selectedRole);
+          setHasEntered(true);
+        }} 
+      />
+    );
+  }
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={role} // Key triggers the animation when role changes
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="w-full"
-      >
-        {role === 'staff' ? (
-          <StaffDashboard user={MOCK_USERS.staff} />
-        ) : (
-          <AdminDashboard user={MOCK_USERS.admin} />
-        )}
-      </motion.div>
-    </AnimatePresence>
+    <>
+      <RoleSwitcher />
+      
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={role} // Key triggers animation on role switch
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="w-full"
+        >
+          {role === 'staff' ? (
+            <StaffDashboard user={MOCK_USERS.staff} />
+          ) : (
+            <AdminDashboard user={MOCK_USERS.admin} />
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </>
   );
 }

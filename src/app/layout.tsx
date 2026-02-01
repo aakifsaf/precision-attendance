@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Toaster } from 'sonner';
 import './globals.css';
-import { RoleSwitcher } from '@/components/layout/RoleSwitcher';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Precision Attendance | Shift Intelligence',
-  description: 'Professional attendance and shift management system',
+  description: 'Enterprise-grade attendance and shift management system',
 };
 
 export default function RootLayout({
@@ -17,11 +17,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${inter.className} h-full antialiased`}>
+      <body className={`${inter.className} h-full antialiased bg-slate-50`}>
+        {/* Provider wraps the entire app state */}
           <div className="min-h-full">
-            <RoleSwitcher />
             {children}
           </div>
+          {/* Global Notification Toast Container */}
+          <Toaster position="top-center" richColors />
       </body>
     </html>
   );
