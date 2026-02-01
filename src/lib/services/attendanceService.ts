@@ -34,16 +34,15 @@ class AttendanceService {
     };
     const newRecord: AttendanceRecord = {
       id: crypto.randomUUID(),
-      userId: user.id,           // Critical for Admin linking
-      userName: user.name,   // Critical for Display
-      checkIn: startTime,        // ISO String
-      checkOut: null,            // NULL = Currently Active
-      date: now.toISOString().split('T')[0], // YYYY-MM-DD
-      status: this.getShiftStatus(startTime), // Helper to determine Late/On-time
+      userId: user.id,           
+      userName: user.name,   
+      checkIn: startTime,        
+      checkOut: null,         
+      date: now.toISOString().split('T')[0],
+      status: this.getShiftStatus(startTime),
       duration: 0
     };
 
-    // Store in localStorage for resilience
     if (typeof window !== 'undefined') {
       localStorage.setItem(this.ACTIVE_SESSION_KEY, JSON.stringify(session));
 
@@ -56,7 +55,6 @@ class AttendanceService {
   }
 
 async clockOut(userId: string): Promise<AttendanceRecord> {
-    // 1. Get active session to ensure we have the start time source of truth
     const activeSession = this.getActiveSession(userId);
     if (!activeSession) {
       throw new Error('No active session found');
@@ -98,10 +96,8 @@ async clockOut(userId: string): Promise<AttendanceRecord> {
       finalRecord = newRecord;
     }
 
-    // 4. Save updated history back to storage
     this.saveHistory(history);
 
-    // 5. Clear the local session
     this.clearActiveSession(userId);
 
     return finalRecord;

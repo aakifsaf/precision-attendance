@@ -67,7 +67,6 @@ export const StaffDashboard = ({ user }: StaffDashboardProps) => {
 
   const { formattedTime } = useResilientTimer(activeSession?.startTime);
 
-  // 1. Performance: Memoize expensive filtering so it doesn't run on every timer tick
   const stats = useMemo(() => {
     const today = new Date().toDateString();
     const todayRecords = records.filter(r => new Date(r.date).toDateString() === today);
@@ -95,7 +94,6 @@ export const StaffDashboard = ({ user }: StaffDashboardProps) => {
   return (
     <div className="min-h-screen bg-slate-50/50 pb-12">
       
-      {/* 2. Enhanced Header with Glassmorphism */}
       <div className="relative bg-white border-b border-slate-200 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -266,7 +264,7 @@ export const StaffDashboard = ({ user }: StaffDashboardProps) => {
                     
                     <div className={cn(
                       "px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border",
-                      STATUS_COLORS[record.status] // Assuming this returns e.g. "bg-green-50 text-green-700 border-green-200"
+                      STATUS_COLORS[record.status] 
                     )}>
                       {record.status}
                     </div>

@@ -90,6 +90,24 @@ const EmployeeRow = ({
 }) => {
   const isActive = !!stats.todaysRecord && !stats.todaysRecord.checkOut;
 
+  const calculateLiveDuration = (checkInStr: string) => {
+  const start = new Date(checkInStr).getTime();
+  const now = Date.now();
+  return Math.floor((now - start) / 1000); // Returns seconds
+};
+
+
+const record = stats.todaysRecord;
+let displayDuration = 0;
+
+if (record) {
+  if (record.checkOut) {
+    displayDuration = record.duration || 0;
+  } else {
+    displayDuration = calculateLiveDuration(record.checkIn);
+  }
+}
+
   return (
     <>
       <tr 
@@ -140,7 +158,7 @@ const EmployeeRow = ({
             <div className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4 text-blue-500" />
               <span className="font-mono font-medium text-slate-900 tabular-nums">
-                {formatDuration(stats.todaysRecord.duration || 0)}
+                {formatDuration(displayDuration)}
               </span>
             </div>
           ) : (
