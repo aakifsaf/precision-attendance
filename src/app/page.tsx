@@ -9,7 +9,7 @@ import { User } from '@/types';
 
 const MOCK_USERS: Record<'staff' | 'admin', User> = {
   staff: {
-    id: 'u_1',
+    id: '1',
     name: 'Alex Johnson',
     email: 'alex.j@precision.inc',
     role: 'staff',
