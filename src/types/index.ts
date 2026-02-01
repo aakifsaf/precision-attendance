@@ -5,7 +5,7 @@ export interface AttendanceRecord {
   userId: string;
   userName: string;
   checkIn: string;
-  checkOut?: string;
+  checkOut: string | null;
   duration?: number;
   status: 'on-time' | 'late' | 'half-day';
   date: string;

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { User, AttendanceRecord } from '@/types';
 import { PulseIndicator } from '@/components/ui/PulseIndicator';
-import { getStatusColor, formatDuration, cn } from '@/lib/utils'; // Assuming cn is your clsx wrapper
+import { getStatusColor, formatDuration, cn } from '@/lib/utils';
 
 // --- Types ---
 interface EmployeeTableProps {
@@ -34,8 +34,6 @@ interface EmployeeStats {
   history: AttendanceRecord[];
 }
 
-// --- Helper: The Engine (O(N) Complexity) ---
-// We calculate stats ONCE per data update, not per row render.
 const useEmployeeStats = (employees: User[], attendanceData: AttendanceRecord[]) => {
   return useMemo(() => {
     const statsMap = new Map<string, EmployeeStats>();
@@ -79,7 +77,6 @@ const useEmployeeStats = (employees: User[], attendanceData: AttendanceRecord[])
   }, [employees, attendanceData]);
 };
 
-// --- Sub-Component: Single Row (Prevents re-rendering entire table) ---
 const EmployeeRow = ({ 
   employee, 
   stats, 

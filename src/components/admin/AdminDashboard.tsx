@@ -55,22 +55,16 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
     }
   };
 
-  // --- ENGINE: Smart Filtering Logic (Memoized) ---
   const processedData = useMemo(() => {
     return employees.filter(emp => {
-      // 1. Search Logic
       const matchesSearch = 
         emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         emp.email.toLowerCase().includes(searchQuery.toLowerCase());
 
       if (!matchesSearch) return false;
 
-      // 2. Status Logic (Active vs Idle)
-      // Find today's record for this user
       const today = new Date().toISOString().split('T')[0];
       const todaysRecord = attendanceData.find(r => 
-        // Logic assumes your attendance record has a way to link to user ID (e.g. employeeId)
-        // Adjust 'r.employeeName' to 'r.employeeId' if your data model supports it
         r.date === today && r.userName === emp.name 
       );
 

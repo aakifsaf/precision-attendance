@@ -108,7 +108,9 @@ export const DashboardStats = ({ employees, attendanceData }: DashboardStatsProp
     const totalEmployees = employees.length;
 
     // 1. Calculate Active Users
-    const activeEmployees = employees.filter(emp => attendanceService.getActiveSession(emp.id) !== null).length;
+    const activeEmployees = attendanceData.filter(record => 
+  record.date === today && record.checkOut === null
+).length;
     
     // 2. Attendance Metrics
     const todayRecords = attendanceData.filter(r => r.date === today);

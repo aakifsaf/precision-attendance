@@ -24,6 +24,7 @@ class AttendanceService {
   }
 
   async clockIn(user: User): Promise<ActiveSession> {
+    const now = new Date();
     const startTime = new Date().toISOString();
     const session: ActiveSession = {
       userId: user.id,
@@ -31,49 +32,79 @@ class AttendanceService {
       lastPing: startTime,
       status: 'active',
     };
+    const newRecord: AttendanceRecord = {
+      id: crypto.randomUUID(),
+      userId: user.id,           // Critical for Admin linking
+      userName: user.name,   // Critical for Display
+      checkIn: startTime,        // ISO String
+      checkOut: null,            // NULL = Currently Active
+      date: now.toISOString().split('T')[0], // YYYY-MM-DD
+      status: this.getShiftStatus(startTime), // Helper to determine Late/On-time
+      duration: 0
+    };
 
     // Store in localStorage for resilience
     if (typeof window !== 'undefined') {
       localStorage.setItem(this.ACTIVE_SESSION_KEY, JSON.stringify(session));
+
+    const history = this.getHistory();
+      const updatedHistory = [newRecord, ...history];
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedHistory));
     }
 
     return session;
   }
 
-  async clockOut(userId: string): Promise<AttendanceRecord> {
-    // Get active session
+async clockOut(userId: string): Promise<AttendanceRecord> {
+    // 1. Get active session to ensure we have the start time source of truth
     const activeSession = this.getActiveSession(userId);
     if (!activeSession) {
       throw new Error('No active session found');
     }
 
-    const checkOutTime = new Date().toISOString();
+    const now = new Date();
+    const checkOutTime = now.toISOString();
     const checkInTime = new Date(activeSession.startTime);
-    const checkOutDate = new Date(checkOutTime);
     
-    const duration = Math.floor((checkOutDate.getTime() - checkInTime.getTime()) / 1000);
-    const status = this.getShiftStatus(activeSession.startTime);
+    const duration = Math.floor((now.getTime() - checkInTime.getTime()) / 1000);
 
-    const record: AttendanceRecord = {
-      id: this.generateId(),
-      userId,
-      userName: 'Alex Johnson', // In production, get from user object
-      checkIn: activeSession.startTime,
-      checkOut: checkOutTime,
-      duration,
-      status,
-      date: checkInTime.toISOString().split('T')[0],
-    };
-
-    // Save to history
     const history = this.getHistory();
-    history.unshift(record);
+
+    const openRecordIndex = history.findIndex(
+      (r) => r.userId === userId && r.checkOut === null
+    );
+
+    let finalRecord: AttendanceRecord;
+
+    if (openRecordIndex !== -1) {
+      history[openRecordIndex] = {
+        ...history[openRecordIndex],
+        checkOut: checkOutTime,
+        duration: duration,
+      };
+      finalRecord = history[openRecordIndex];
+    } else {
+      const newRecord: AttendanceRecord = {
+        id: this.generateId(),
+        userId,
+        userName: 'Alex Johnson', // ideally passed or fetched
+        checkIn: activeSession.startTime,
+        checkOut: checkOutTime,
+        duration,
+        status: this.getShiftStatus(activeSession.startTime),
+        date: checkInTime.toISOString().split('T')[0],
+      };
+      history.unshift(newRecord);
+      finalRecord = newRecord;
+    }
+
+    // 4. Save updated history back to storage
     this.saveHistory(history);
 
-    // Clear active session
+    // 5. Clear the local session
     this.clearActiveSession(userId);
 
-    return record;
+    return finalRecord;
   }
 
   getActiveSession(userId: string): ActiveSession | null {
