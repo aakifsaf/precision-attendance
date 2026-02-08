@@ -1,13 +1,10 @@
+'use client';
+
 import { useState, useEffect, useMemo } from 'react';
 import { 
   Search, 
   Filter, 
   Download,
-  MoreVertical,
-  UserCheck,
-  UserX,
-  Clock,
-  TrendingUp,
   RefreshCw
 } from 'lucide-react';
 import { User, AttendanceRecord } from '@/types';
@@ -85,7 +82,7 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
     <button 
       onClick={() => loadData(true)}
       disabled={isRefreshing}
-      className={`p-2 rounded-lg text-slate-500 hover:bg-white hover:text-slate-700 transition-all ${isRefreshing ? 'animate-spin' : ''}`}
+      className={`p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-all ${isRefreshing ? 'animate-spin' : ''}`}
       title="Refresh Data"
     >
       <RefreshCw className="w-5 h-5" />
@@ -99,8 +96,6 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
     }
 
     try {
-      // Filter data based on current view (optional: or export all)
-      // For this implementation, we export the filtered view to match user expectation
       const dataToExport = filter === 'all' 
         ? attendanceData 
         : processedData.flatMap(emp => 
@@ -108,9 +103,7 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
           );
 
       toast.info('Generating report...');
-      
       downloadAttendanceCSV(dataToExport, 'workforce_report');
-      
       toast.success('Report downloaded successfully');
     } catch (error) {
       console.error('Export failed:', error);
@@ -119,31 +112,31 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 transition-colors duration-300">
       
       {/* 1. Modern Header */}
-      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <div className="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                 Workforce Command Center
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                <p className="text-sm text-slate-500">System Online • Real-time Monitoring</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">System Online • Real-time Monitoring</p>
               </div>
             </div>
 
             <div className="flex items-center gap-6">
               <RefreshButton />
               
-              <div className="hidden md:flex items-center gap-3 pl-6 border-l border-slate-200">
+              <div className="hidden md:flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-700">
                 <div className="text-right">
-                  <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Administrator</div>
-                  <div className="text-sm font-medium text-slate-900">{user.name}</div>
+                  <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Administrator</div>
+                  <div className="text-sm font-medium text-slate-900 dark:text-slate-200">{user.name}</div>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold shadow-md">
+                <div className="h-10 w-10 rounded-full bg-slate-900 dark:bg-slate-700 flex items-center justify-center text-white font-bold shadow-md">
                   {user.name.charAt(0)}
                 </div>
               </div>
@@ -158,7 +151,7 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
         {loading ? (
            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-pulse">
              {[...Array(4)].map((_, i) => (
-               <div key={i} className="h-32 bg-slate-200 rounded-xl" />
+               <div key={i} className="h-32 bg-slate-200 dark:bg-slate-800 rounded-xl" />
              ))}
            </div>
         ) : (
@@ -169,19 +162,19 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
         )}
 
         {/* 3. Controls Bar */}
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
            {/* Search */}
            <div className="relative w-full md:w-96 group">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search by name, email or ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm"
-              />
+             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+               <Search className="h-4 w-4 text-slate-400 dark:text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+             </div>
+             <input
+               type="text"
+               placeholder="Search by name, email or ID..."
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               className="block w-full pl-10 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg leading-5 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all sm:text-sm"
+             />
            </div>
 
            {/* Filters & Actions */}
@@ -190,18 +183,18 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
                 <select
                   value={filter}
                   onChange={(e) => setFilter(e.target.value as any)}
-                  className="appearance-none bg-white border border-slate-200 text-slate-700 py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm font-medium cursor-pointer hover:border-slate-300 transition-colors"
+                  className="appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm font-medium cursor-pointer hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
                 >
                   <option value="all">View All Staff</option>
                   <option value="active">🟢 Active Now</option>
                   <option value="idle">⚪ Currently Idle</option>
                 </select>
-                <Filter className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
+                <Filter className="absolute right-3 top-2.5 h-4 w-4 text-slate-400 dark:text-slate-500 pointer-events-none" />
              </div>
 
              <button 
                onClick={handleExport}
-               className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-sm active:transform active:scale-95"
+               className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-800 text-white dark:text-slate-100 text-sm font-medium rounded-lg hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors shadow-sm active:transform active:scale-95 border border-transparent dark:border-slate-700"
              >
                 <Download className="h-4 w-4" />
                 <span className="hidden sm:inline">Export CSV</span>
@@ -210,13 +203,13 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
         </div>
 
         {/* 4. Data Table Section */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden min-h-[400px]">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px] transition-colors duration-300">
           {/* Table Header Context */}
-          <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-950/50">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200 uppercase tracking-wider">
               Employee Directory
             </h3>
-            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium border border-slate-200">
+            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-medium border border-slate-200 dark:border-slate-700">
               {processedData.length} Records
             </span>
           </div>
@@ -226,10 +219,10 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
              <div className="p-6 space-y-4">
                {[...Array(5)].map((_, i) => (
                  <div key={i} className="flex gap-4">
-                   <div className="h-10 w-10 rounded-full bg-slate-100 animate-pulse" />
+                   <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
                    <div className="flex-1 space-y-2">
-                     <div className="h-4 w-1/4 bg-slate-100 rounded animate-pulse" />
-                     <div className="h-3 w-3/4 bg-slate-50 rounded animate-pulse" />
+                     <div className="h-4 w-1/4 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+                     <div className="h-3 w-3/4 bg-slate-50 dark:bg-slate-800/50 rounded animate-pulse" />
                    </div>
                  </div>
                ))}
@@ -243,16 +236,16 @@ export const AdminDashboard = ({ user }: AdminDashboardProps) => {
           ) : (
             // Empty State
             <div className="flex flex-col items-center justify-center py-20 text-center">
-               <div className="p-4 rounded-full bg-slate-50 mb-4">
-                 <Search className="h-8 w-8 text-slate-300" />
+               <div className="p-4 rounded-full bg-slate-50 dark:bg-slate-800 mb-4">
+                 <Search className="h-8 w-8 text-slate-300 dark:text-slate-600" />
                </div>
-               <h3 className="text-lg font-medium text-slate-900">No employees found</h3>
-               <p className="text-slate-500 max-w-sm mt-1">
+               <h3 className="text-lg font-medium text-slate-900 dark:text-white">No employees found</h3>
+               <p className="text-slate-500 dark:text-slate-400 max-w-sm mt-1">
                  We couldn't find anyone matching "{searchQuery}" with the current filters.
                </p>
                <button 
                  onClick={() => {setSearchQuery(''); setFilter('all');}}
-                 className="mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                 className="mt-4 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium"
                >
                  Clear all filters
                </button>

@@ -52,13 +52,14 @@ interface StatItem {
 
 // --- Sub-Component: The Card (Pure UI) ---
 const StatCard = ({ item, index }: { item: StatItem; index: number }) => {
+  // Updated Colors for Dark Mode Support (using transparency)
   const colors: Record<string, { bg: string; text: string; border: string; iconBg: string }> = {
-    blue:    { bg: 'bg-blue-50/50',    text: 'text-blue-600',    border: 'border-blue-100',    iconBg: 'bg-blue-100' },
-    emerald: { bg: 'bg-emerald-50/50', text: 'text-emerald-600', border: 'border-emerald-100', iconBg: 'bg-emerald-100' },
-    amber:   { bg: 'bg-amber-50/50',   text: 'text-amber-600',   border: 'border-amber-100',   iconBg: 'bg-amber-100' },
-    purple:  { bg: 'bg-purple-50/50',  text: 'text-purple-600',  border: 'border-purple-100',  iconBg: 'bg-purple-100' },
-    indigo:  { bg: 'bg-indigo-50/50',  text: 'text-indigo-600',  border: 'border-indigo-100',  iconBg: 'bg-indigo-100' },
-    rose:    { bg: 'bg-rose-50/50',    text: 'text-rose-600',    border: 'border-rose-100',    iconBg: 'bg-rose-100' },
+    blue:    { bg: 'bg-blue-50/50 dark:bg-blue-500/10',    text: 'text-blue-600 dark:text-blue-400',    border: 'border-blue-100 dark:border-blue-500/20',    iconBg: 'bg-blue-100 dark:bg-blue-500/20' },
+    emerald: { bg: 'bg-emerald-50/50 dark:bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-100 dark:border-emerald-500/20', iconBg: 'bg-emerald-100 dark:bg-emerald-500/20' },
+    amber:   { bg: 'bg-amber-50/50 dark:bg-amber-500/10',   text: 'text-amber-600 dark:text-amber-400',   border: 'border-amber-100 dark:border-amber-500/20',   iconBg: 'bg-amber-100 dark:bg-amber-500/20' },
+    purple:  { bg: 'bg-purple-50/50 dark:bg-purple-500/10',  text: 'text-purple-600 dark:text-purple-400',  border: 'border-purple-100 dark:border-purple-500/20',  iconBg: 'bg-purple-100 dark:bg-purple-500/20' },
+    indigo:  { bg: 'bg-indigo-50/50 dark:bg-indigo-500/10',  text: 'text-indigo-600 dark:text-indigo-400',  border: 'border-indigo-100 dark:border-indigo-500/20',  iconBg: 'bg-indigo-100 dark:bg-indigo-500/20' },
+    rose:    { bg: 'bg-rose-50/50 dark:bg-rose-500/10',    text: 'text-rose-600 dark:text-rose-400',    border: 'border-rose-100 dark:border-rose-500/20',    iconBg: 'bg-rose-100 dark:bg-rose-500/20' },
   };
 
   const theme = colors[item.colorClass] || colors.blue;
@@ -68,20 +69,20 @@ const StatCard = ({ item, index }: { item: StatItem; index: number }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.4 }}
-      className="relative overflow-hidden rounded-2xl bg-white border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow group"
+      className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm hover:shadow-md dark:shadow-black/20 transition-all group"
     >
       <div className={cn("absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl", theme.bg)} />
 
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-4">
-          <div className={cn("p-3 rounded-xl", theme.iconBg)}>
+          <div className={cn("p-3 rounded-xl transition-colors", theme.iconBg)}>
             <item.icon className={cn("h-6 w-6", theme.text)} />
           </div>
           <div className={cn(
-            "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border",
-            item.trend.direction === 'up' && "bg-emerald-50 text-emerald-700 border-emerald-100",
-            item.trend.direction === 'down' && "bg-rose-50 text-rose-700 border-rose-100",
-            item.trend.direction === 'neutral' && "bg-slate-50 text-slate-600 border-slate-100",
+            "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors",
+            item.trend.direction === 'up' && "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20",
+            item.trend.direction === 'down' && "bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-100 dark:border-rose-500/20",
+            item.trend.direction === 'neutral' && "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-100 dark:border-slate-700",
           )}>
             {item.trend.direction === 'up' && <ArrowUpRight className="h-3 w-3" />}
             {item.trend.direction === 'down' && <ArrowDownRight className="h-3 w-3" />}
@@ -91,15 +92,15 @@ const StatCard = ({ item, index }: { item: StatItem; index: number }) => {
         </div>
 
         <div className="space-y-1">
-          <h3 className="text-3xl font-bold text-slate-900 tracking-tight">{item.value}</h3>
-          <p className="text-sm font-medium text-slate-500">{item.title}</p>
+          <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{item.value}</h3>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{item.title}</p>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
-           <span className="text-xs text-slate-400">{item.trend.label}</span>
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+           <span className="text-xs text-slate-400 dark:text-slate-500">{item.trend.label}</span>
            <div className="flex items-center gap-1.5">
               <span className={cn("flex h-2 w-2 rounded-full", theme.bg.replace('/50', ''))} />
-              <span className="text-xs font-semibold text-slate-900">Live</span>
+              <span className="text-xs font-semibold text-slate-900 dark:text-slate-200">Live</span>
            </div>
         </div>
       </div>
@@ -110,19 +111,20 @@ const StatCard = ({ item, index }: { item: StatItem; index: number }) => {
 // --- Sub-Component: Weekly Bar Chart ---
 const WeeklyAttendanceChart = ({ data }: { data: any[] }) => {
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-[350px]">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm h-[350px] transition-colors duration-300">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">Weekly Activity</h3>
-          <p className="text-sm text-slate-500">Check-ins over the last 7 days</p>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Weekly Activity</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Check-ins over the last 7 days</p>
         </div>
-        <div className="p-2 bg-slate-50 rounded-lg">
-          <BarChart3 className="h-5 w-5 text-slate-400" />
+        <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
+          <BarChart3 className="h-5 w-5 text-slate-400 dark:text-slate-500" />
         </div>
       </div>
       <ResponsiveContainer width="100%" height="80%">
         <BarChart data={data} barSize={32}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+          {/* Note: Colors for stroke are hardcoded, for perfect dark mode they should be dynamic or variables */}
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
           <XAxis 
             dataKey="name" 
             axisLine={false} 
@@ -136,7 +138,7 @@ const WeeklyAttendanceChart = ({ data }: { data: any[] }) => {
             tick={{ fill: '#64748B', fontSize: 12 }} 
           />
           <Tooltip 
-            cursor={{ fill: '#F1F5F9' }}
+            cursor={{ fill: 'rgba(241, 245, 249, 0.1)' }} // Semi-transparent for both modes
             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
           />
           <Bar dataKey="active" name="Present" fill="#3B82F6" radius={[4, 4, 0, 0]} />
@@ -151,14 +153,14 @@ const StatusDistributionChart = ({ data }: { data: any[] }) => {
   const COLORS = ['#10B981', '#F59E0B', '#F43F5E']; // Emerald, Amber, Rose
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm h-[350px]">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm h-[350px] transition-colors duration-300">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">Status Breakdown</h3>
-          <p className="text-sm text-slate-500">Distribution of punctuality</p>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Status Breakdown</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Distribution of punctuality</p>
         </div>
-        <div className="p-2 bg-slate-50 rounded-lg">
-          <Target className="h-5 w-5 text-slate-400" />
+        <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
+          <Target className="h-5 w-5 text-slate-400 dark:text-slate-500" />
         </div>
       </div>
       <ResponsiveContainer width="100%" height="80%">
@@ -171,7 +173,7 @@ const StatusDistributionChart = ({ data }: { data: any[] }) => {
             dataKey="value"
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={2} stroke="rgba(255,255,255,0.1)" />
             ))}
           </Pie>
           <Tooltip 
@@ -187,7 +189,7 @@ const StatusDistributionChart = ({ data }: { data: any[] }) => {
 // --- Main Component ---
 export const DashboardStats = ({ employees, attendanceData }: DashboardStatsProps) => {
   
-  // 1. Calculate Standard Metrics (Existing Logic)
+  // 1. Calculate Standard Metrics
   const stats = useMemo<StatItem[]>(() => {
     const today = new Date().toISOString().split('T')[0];
     const totalEmployees = employees.length;
@@ -249,7 +251,7 @@ export const DashboardStats = ({ employees, attendanceData }: DashboardStatsProp
   }, [employees, attendanceData]);
 
 
-  // 2. Prepare Chart Data (New Logic)
+  // 2. Prepare Chart Data
   const chartData = useMemo(() => {
     // A. Weekly Activity Data
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

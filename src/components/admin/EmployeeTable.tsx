@@ -7,10 +7,7 @@ import {
   Mail, 
   Building, 
   Clock,
-  MoreVertical,
-  TrendingUp,
   Calendar,
-  ChevronRight,
   ChevronDown
 } from 'lucide-react';
 import { User, AttendanceRecord } from '@/types';
@@ -91,37 +88,37 @@ const EmployeeRow = ({
   const isActive = !!stats.todaysRecord && !stats.todaysRecord.checkOut;
 
   const calculateLiveDuration = (checkInStr: string) => {
-  const start = new Date(checkInStr).getTime();
-  const now = Date.now();
-  return Math.floor((now - start) / 1000); // Returns seconds
-};
+    const start = new Date(checkInStr).getTime();
+    const now = Date.now();
+    return Math.floor((now - start) / 1000); // Returns seconds
+  };
 
 
-const record = stats.todaysRecord;
-let displayDuration = 0;
+  const record = stats.todaysRecord;
+  let displayDuration = 0;
 
-if (record) {
-  if (record.checkOut) {
-    displayDuration = record.duration || 0;
-  } else {
-    displayDuration = calculateLiveDuration(record.checkIn);
+  if (record) {
+    if (record.checkOut) {
+      displayDuration = record.duration || 0;
+    } else {
+      displayDuration = calculateLiveDuration(record.checkIn);
+    }
   }
-}
 
   return (
     <>
       <tr 
         onClick={onToggle}
         className={cn(
-          "group transition-all cursor-pointer border-b border-gray-100 last:border-0",
-          isExpanded ? "bg-blue-50/30" : "hover:bg-gray-50"
+          "group transition-all cursor-pointer border-b border-gray-100 dark:border-slate-800 last:border-0",
+          isExpanded ? "bg-blue-50/30 dark:bg-blue-900/10" : "hover:bg-gray-50 dark:hover:bg-slate-800/50"
         )}
       >
         {/* Employee Info */}
         <td className="py-4 px-6">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-white font-semibold shadow-sm ring-2 ring-white">
+              <div className="h-10 w-10 rounded-full bg-slate-900 dark:bg-slate-700 flex items-center justify-center text-white font-semibold shadow-sm ring-2 ring-white dark:ring-slate-800">
                 {employee.avatar || employee.name.charAt(0)}
               </div>
               {isActive && (
@@ -131,8 +128,8 @@ if (record) {
               )}
             </div>
             <div>
-              <div className="font-medium text-slate-900">{employee.name}</div>
-              <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="font-medium text-slate-900 dark:text-slate-200">{employee.name}</div>
+              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <Mail className="h-3 w-3" /> {employee.email}
               </div>
             </div>
@@ -144,9 +141,9 @@ if (record) {
           <div className="flex items-center gap-2">
             <span className={cn(
               "flex h-2 w-2 rounded-full",
-              isActive ? "bg-emerald-500 animate-pulse" : "bg-slate-300"
+              isActive ? "bg-emerald-500 animate-pulse" : "bg-slate-300 dark:bg-slate-600"
             )} />
-            <span className="text-sm font-medium text-slate-700">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
               {isActive ? 'Active' : 'Offline'}
             </span>
           </div>
@@ -156,13 +153,13 @@ if (record) {
         <td className="py-4 px-6">
           {stats.todaysRecord ? (
             <div className="flex items-center gap-2 text-sm">
-              <Clock className="h-4 w-4 text-blue-500" />
-              <span className="font-mono font-medium text-slate-900 tabular-nums">
+              <Clock className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+              <span className="font-mono font-medium text-slate-900 dark:text-slate-200 tabular-nums">
                 {formatDuration(displayDuration)}
               </span>
             </div>
           ) : (
-             <span className="text-xs text-slate-400 italic">No activity</span>
+             <span className="text-xs text-slate-400 dark:text-slate-500 italic">No activity</span>
           )}
         </td>
 
@@ -170,12 +167,12 @@ if (record) {
         <td className="py-4 px-6">
           <div className="flex items-center gap-6">
             <div className="text-center">
-              <div className="text-sm font-bold text-slate-900">{stats.onTimeCount}</div>
-              <div className="text-[10px] uppercase tracking-wider text-slate-500">On Time</div>
+              <div className="text-sm font-bold text-slate-900 dark:text-slate-200">{stats.onTimeCount}</div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400">On Time</div>
             </div>
             <div className="text-center">
-              <div className="text-sm font-bold text-amber-600">{stats.lateCount}</div>
-              <div className="text-[10px] uppercase tracking-wider text-slate-500">Late</div>
+              <div className="text-sm font-bold text-amber-600 dark:text-amber-500">{stats.lateCount}</div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400">Late</div>
             </div>
           </div>
         </td>
@@ -183,10 +180,10 @@ if (record) {
         {/* Action / Chevron */}
         <td className="py-4 px-6 text-right">
            <div className={cn(
-             "p-2 rounded-full hover:bg-slate-200 inline-flex transition-transform duration-200",
-             isExpanded ? "rotate-180 bg-slate-200" : ""
+             "p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 inline-flex transition-transform duration-200",
+             isExpanded ? "rotate-180 bg-slate-200 dark:bg-slate-700" : ""
            )}>
-             <ChevronDown className="h-4 w-4 text-slate-500" />
+             <ChevronDown className="h-4 w-4 text-slate-500 dark:text-slate-400" />
            </div>
         </td>
       </tr>
@@ -195,42 +192,42 @@ if (record) {
       <AnimatePresence>
         {isExpanded && (
           <tr>
-            <td colSpan={5} className="p-0 border-b border-gray-100">
+            <td colSpan={5} className="p-0 border-b border-gray-100 dark:border-slate-800">
               <motion.div 
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="overflow-hidden bg-slate-50/50"
+                className="overflow-hidden bg-slate-50/50 dark:bg-slate-900/50"
               >
                 <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                    {/* Department Card */}
-                   <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                      <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-4">
-                        <Building className="h-4 w-4 text-slate-500" /> Department Details
+                   <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                      <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-200 mb-4">
+                        <Building className="h-4 w-4 text-slate-500 dark:text-slate-400" /> Department Details
                       </h4>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-slate-500">Department</span>
-                          <span className="font-medium text-slate-900">{employee.department}</span>
+                          <span className="text-slate-500 dark:text-slate-400">Department</span>
+                          <span className="font-medium text-slate-900 dark:text-slate-200">{employee.department}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-slate-500">Employee ID</span>
-                          <span className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded">{employee.id}</span>
+                          <span className="text-slate-500 dark:text-slate-400">Employee ID</span>
+                          <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">{employee.id}</span>
                         </div>
                       </div>
                    </div>
 
                    {/* History Card */}
-                   <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm col-span-2">
-                      <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 mb-4">
-                        <Calendar className="h-4 w-4 text-slate-500" /> Recent History
+                   <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm col-span-2">
+                      <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-200 mb-4">
+                        <Calendar className="h-4 w-4 text-slate-500 dark:text-slate-400" /> Recent History
                       </h4>
                       <div className="space-y-3">
                         {stats.history.slice(0, 3).map((record) => (
-                           <div key={record.id} className="flex items-center justify-between text-sm p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                           <div key={record.id} className="flex items-center justify-between text-sm p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
                               <div className="flex items-center gap-3">
-                                <span className="font-medium text-slate-700">
+                                <span className="font-medium text-slate-700 dark:text-slate-300">
                                   {new Date(record.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                 </span>
                                 <span className="text-slate-400 text-xs">
@@ -240,7 +237,7 @@ if (record) {
                               </div>
                               <div className={cn(
                                 "px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize",
-                                getStatusColor(record.status) // Ensure your utility returns bg/text/border classes
+                                getStatusColor(record.status) // Note: Ensure getStatusColor utility handles dark mode transparency (e.g., bg-emerald-500/10)
                               )}>
                                 {record.status}
                               </div>
@@ -274,10 +271,10 @@ export const EmployeeTable = ({
   if (employees.length === 0) return <EmptyState />;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-colors duration-300">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-slate-50/80 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-semibold">
+          <tr className="bg-slate-50/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
             <th className="py-4 px-6">Employee</th>
             <th className="py-4 px-6">Status</th>
             <th className="py-4 px-6">Today's Hours</th>
@@ -285,7 +282,7 @@ export const EmployeeTable = ({
             <th className="py-4 px-6 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
           {employees.map((employee) => (
             <EmployeeRow 
               key={employee.id}
@@ -304,13 +301,13 @@ export const EmployeeTable = ({
 // --- Sub-components (Clean code practice) ---
 
 const TableSkeleton = () => (
-  <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+  <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
     {[...Array(5)].map((_, i) => (
       <div key={i} className="flex items-center gap-4 animate-pulse">
-        <div className="h-10 w-10 rounded-full bg-slate-200" />
+        <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-800" />
         <div className="space-y-2 flex-1">
-           <div className="h-4 w-1/4 bg-slate-200 rounded" />
-           <div className="h-3 w-1/3 bg-slate-100 rounded" />
+           <div className="h-4 w-1/4 bg-slate-200 dark:bg-slate-800 rounded" />
+           <div className="h-3 w-1/3 bg-slate-100 dark:bg-slate-800/50 rounded" />
         </div>
       </div>
     ))}
@@ -318,11 +315,11 @@ const TableSkeleton = () => (
 );
 
 const EmptyState = () => (
-  <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-slate-200 border-dashed">
-     <div className="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-       <UserIcon className="h-8 w-8 text-slate-300" />
+  <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 border-dashed">
+     <div className="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+       <UserIcon className="h-8 w-8 text-slate-300 dark:text-slate-600" />
      </div>
-     <h3 className="text-lg font-medium text-slate-900">No employees found</h3>
-     <p className="text-slate-500 text-sm">Try adjusting your filters.</p>
+     <h3 className="text-lg font-medium text-slate-900 dark:text-white">No employees found</h3>
+     <p className="text-slate-500 dark:text-slate-400 text-sm">Try adjusting your filters.</p>
   </div>
 );

@@ -19,6 +19,7 @@
     /* Optimizes font rendering for timer digits */
     font-feature-settings: "tnum" on, "lnum" on; 
   }
+  
 }
 
 @layer utilities {
