@@ -95,41 +95,67 @@ export const StaffDashboard = ({ user }: StaffDashboardProps) => {
       <div className="relative bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                {stats.greeting}, {user.name.split(' ')[0]}
-              </h1>
-              <div className="flex items-center gap-4 mt-2 text-slate-500 dark:text-slate-400 text-sm">
-                 <span className="flex items-center gap-1.5">
-                   <Calendar className="w-4 h-4" />
-                   {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                 </span>
-                 <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
-                 <span className="flex items-center gap-1.5">
-                   <MapPin className="w-4 h-4" />
-                   Remote
-                 </span>
-              </div>
-            </motion.div>
+          <div className="flex flex-row items-center justify-between gap-4 md:gap-6">
+  {/* Left Side: Greeting */}
+  <motion.div 
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+  >
+    {/* Scaled text size for mobile (2xl) vs desktop (3xl) */}
+    <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+      {stats.greeting}, {user.name.split(' ')[0]}
+    </h1>
+    
+    {/* Metadata: Hidden on very small screens if needed, or stacked */}
+    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-2 text-slate-500 dark:text-slate-400 text-xs md:text-sm">
+       <span className="flex items-center gap-1.5">
+         <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4" />
+         {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+       </span>
+       <span className="hidden sm:block h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+       <span className="flex items-center gap-1.5">
+         <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4" />
+         Remote
+       </span>
+    </div>
+  </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-4 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm p-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/60"
-            >
-              <div className="text-right px-2">
-                <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Role</div>
-                <div className="text-sm font-semibold text-slate-900 dark:text-slate-200">{user.department || 'Engineering'}</div>
-              </div>
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-slate-900/10 dark:shadow-black/20">
-                {user.name.charAt(0)}
-              </div>
-            </motion.div>
-          </div>
+  {/* Right Side: Profile Card */}
+  <motion.div 
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    className={cn(
+      // Layout: Always a flex row, fit content, pushed to right
+      "w-fit ml-auto flex items-center gap-3 md:gap-4", 
+      // Visuals
+      "bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm",
+      "border border-slate-200/60 dark:border-slate-700/60",
+      // Spacing
+      "p-1.5 pr-2 md:p-2 rounded-2xl shadow-sm"
+    )}
+  >
+    {/* Text Section: Hidden on mobile to keep it neat */}
+    <div className="hidden sm:block text-right px-2">
+      <div className="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+        Role
+      </div>
+      <div className="text-xs md:text-sm font-semibold text-slate-900 dark:text-slate-200">
+        {user.department || 'Engineering'}
+      </div>
+    </div>
+
+    {/* Avatar Section */}
+    <div className={cn(
+      "flex items-center justify-center rounded-xl",
+      "bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-700 dark:to-slate-800",
+      "text-white font-bold shadow-lg shadow-slate-900/10 dark:shadow-black/20",
+      // Compact size for mobile row layout
+      "h-9 w-9 text-sm md:h-12 md:w-12 md:text-lg shrink-0" 
+    )}>
+      {user.name.charAt(0)}
+    </div>
+  </motion.div>
+</div>
         </div>
       </div>
 
