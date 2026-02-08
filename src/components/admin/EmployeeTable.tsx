@@ -8,7 +8,8 @@ import {
   Building, 
   Clock,
   Calendar,
-  ChevronDown
+  ChevronDown,
+  MoreHorizontal
 } from 'lucide-react';
 import { User, AttendanceRecord } from '@/types';
 import { PulseIndicator } from '@/components/ui/PulseIndicator';
@@ -21,6 +22,7 @@ interface EmployeeTableProps {
   loading: boolean;
 }
 
+// (Keep existing EmployeeStats interface and useEmployeeStats hook)
 interface EmployeeStats {
   totalSessions: number;
   onTimeCount: number;
@@ -36,7 +38,6 @@ const useEmployeeStats = (employees: User[], attendanceData: AttendanceRecord[])
     const statsMap = new Map<string, EmployeeStats>();
     const today = new Date().toISOString().split('T')[0];
 
-    // 1. Initialize Map
     employees.forEach(emp => {
       statsMap.set(emp.id, {
         totalSessions: 0,
@@ -49,7 +50,6 @@ const useEmployeeStats = (employees: User[], attendanceData: AttendanceRecord[])
       });
     });
 
-    // 2. Single Pass Aggregation
     attendanceData.forEach(record => {
       const stats = statsMap.get(record.userId);
       if (!stats) return;
@@ -62,11 +62,9 @@ const useEmployeeStats = (employees: User[], attendanceData: AttendanceRecord[])
       if (record.status === 'late' || record.status === 'half-day') stats.lateCount++;
     });
 
-    // 3. Final Calculations
     statsMap.forEach(stats => {
       const totalHours = stats.history.reduce((sum, r) => sum + (r.duration || 0) / 3600, 0);
       stats.avgHours = stats.totalSessions > 0 ? totalHours / stats.totalSessions : 0;
-      // Sort history new -> old
       stats.history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
 
@@ -74,7 +72,151 @@ const useEmployeeStats = (employees: User[], attendanceData: AttendanceRecord[])
   }, [employees, attendanceData]);
 };
 
-const EmployeeRow = ({ 
+// --- Shared Helper for Expanded Content (Used in both Mobile & Desktop) ---
+const ExpandedDetails = ({ employee, stats }: { employee: User; stats: EmployeeStats }) => (
+  <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 bg-slate-50/50 dark:bg-slate-900/50">
+    {/* Department Card */}
+    <div className="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-200 mb-3 md:mb-4">
+        <Building className="h-4 w-4 text-slate-500 dark:text-slate-400" /> Department
+      </h4>
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="text-slate-500 dark:text-slate-400">Dept.</span>
+          <span className="font-medium text-slate-900 dark:text-slate-200">{employee.department}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-slate-500 dark:text-slate-400">ID</span>
+          <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">{employee.id}</span>
+        </div>
+      </div>
+    </div>
+
+    {/* History Card */}
+    <div className="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm md:col-span-2">
+      <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-200 mb-3 md:mb-4">
+        <Calendar className="h-4 w-4 text-slate-500 dark:text-slate-400" /> Recent History
+      </h4>
+      <div className="space-y-2 md:space-y-3">
+        {stats.history.length > 0 ? (
+          stats.history.slice(0, 3).map((record) => (
+            <div key={record.id} className="flex items-center justify-between text-sm p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
+              <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+                  {new Date(record.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                </span>
+                <span className="text-slate-400 text-xs hidden md:inline">
+                  {new Date(record.checkIn).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit'})} - 
+                  {record.checkOut ? new Date(record.checkOut).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit'}) : ' ...'}
+                </span>
+              </div>
+              <div className={cn(
+                "px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium border capitalize",
+                getStatusColor(record.status)
+              )}>
+                {record.status}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-sm text-slate-400 italic py-2">No recent history</div>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
+// --- Component: Mobile Employee Card ---
+const MobileEmployeeCard = ({ 
+  employee, 
+  stats, 
+  isActive, 
+  isExpanded, 
+  onToggle 
+}: { 
+  employee: User; 
+  stats: EmployeeStats; 
+  isActive: boolean; 
+  isExpanded: boolean; 
+  onToggle: () => void; 
+}) => {
+  return (
+    <div className="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 overflow-hidden transition-all duration-300">
+      <div 
+        onClick={onToggle}
+        className="p-4 flex items-center justify-between active:bg-slate-50 dark:active:bg-slate-800/50 cursor-pointer"
+      >
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="h-10 w-10 rounded-full bg-slate-900 dark:bg-slate-700 flex items-center justify-center text-white font-semibold text-sm">
+              {employee.avatar || employee.name.charAt(0)}
+            </div>
+            {isActive && (
+              <div className="absolute -bottom-0.5 -right-0.5 border-2 border-white dark:border-slate-900 rounded-full">
+                <div className="h-2.5 w-2.5 bg-emerald-500 rounded-full animate-pulse" />
+              </div>
+            )}
+          </div>
+          <div>
+            <div className="font-medium text-slate-900 dark:text-white text-sm">{employee.name}</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400">{employee.department}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+           {/* Mini Status Pill */}
+           <div className={cn(
+             "px-2 py-1 rounded-md text-xs font-medium border",
+             isActive 
+               ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20"
+               : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-100 dark:border-slate-700"
+           )}>
+             {isActive ? 'Active' : 'Offline'}
+           </div>
+           
+           <ChevronDown className={cn(
+             "h-4 w-4 text-slate-400 transition-transform duration-200",
+             isExpanded ? "rotate-180" : ""
+           )} />
+        </div>
+      </div>
+
+      {/* Stats Summary Bar (Always Visible on Card) */}
+      <div className="px-4 pb-4 flex items-center gap-4 text-xs border-b border-slate-50 dark:border-slate-800/50">
+        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+          <Clock className="h-3.5 w-3.5 text-blue-500" />
+          <span>{stats.todaysRecord?.duration ? formatDuration(stats.todaysRecord.duration) : '--:--'}</span>
+        </div>
+        <div className="h-3 w-px bg-slate-200 dark:bg-slate-700" />
+        <div className="flex items-center gap-1.5">
+           <span className="font-bold text-slate-900 dark:text-slate-200">{stats.onTimeCount}</span>
+           <span className="text-slate-500">On Time</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+           <span className="font-bold text-amber-600 dark:text-amber-500">{stats.lateCount}</span>
+           <span className="text-slate-500">Late</span>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden border-t border-slate-100 dark:border-slate-800"
+          >
+            <ExpandedDetails employee={employee} stats={stats} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// --- Component: Desktop Employee Row ---
+const DesktopEmployeeRow = ({ 
   employee, 
   stats, 
   isExpanded, 
@@ -90,9 +232,8 @@ const EmployeeRow = ({
   const calculateLiveDuration = (checkInStr: string) => {
     const start = new Date(checkInStr).getTime();
     const now = Date.now();
-    return Math.floor((now - start) / 1000); // Returns seconds
+    return Math.floor((now - start) / 1000);
   };
-
 
   const record = stats.todaysRecord;
   let displayDuration = 0;
@@ -177,7 +318,7 @@ const EmployeeRow = ({
           </div>
         </td>
 
-        {/* Action / Chevron */}
+        {/* Action */}
         <td className="py-4 px-6 text-right">
            <div className={cn(
              "p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 inline-flex transition-transform duration-200",
@@ -188,7 +329,7 @@ const EmployeeRow = ({
         </td>
       </tr>
 
-      {/* Expanded Content with Framer Motion */}
+      {/* Expanded Content Desktop */}
       <AnimatePresence>
         {isExpanded && (
           <tr>
@@ -198,54 +339,9 @@ const EmployeeRow = ({
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="overflow-hidden bg-slate-50/50 dark:bg-slate-900/50"
+                className="overflow-hidden"
               >
-                <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                   {/* Department Card */}
-                   <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                      <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-200 mb-4">
-                        <Building className="h-4 w-4 text-slate-500 dark:text-slate-400" /> Department Details
-                      </h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-500 dark:text-slate-400">Department</span>
-                          <span className="font-medium text-slate-900 dark:text-slate-200">{employee.department}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-500 dark:text-slate-400">Employee ID</span>
-                          <span className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">{employee.id}</span>
-                        </div>
-                      </div>
-                   </div>
-
-                   {/* History Card */}
-                   <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm col-span-2">
-                      <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-200 mb-4">
-                        <Calendar className="h-4 w-4 text-slate-500 dark:text-slate-400" /> Recent History
-                      </h4>
-                      <div className="space-y-3">
-                        {stats.history.slice(0, 3).map((record) => (
-                           <div key={record.id} className="flex items-center justify-between text-sm p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
-                              <div className="flex items-center gap-3">
-                                <span className="font-medium text-slate-700 dark:text-slate-300">
-                                  {new Date(record.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                </span>
-                                <span className="text-slate-400 text-xs">
-                                  {new Date(record.checkIn).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit'})} - 
-                                  {record.checkOut ? new Date(record.checkOut).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit'}) : ' ...'}
-                                </span>
-                              </div>
-                              <div className={cn(
-                                "px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize",
-                                getStatusColor(record.status) // Note: Ensure getStatusColor utility handles dark mode transparency (e.g., bg-emerald-500/10)
-                              )}>
-                                {record.status}
-                              </div>
-                           </div>
-                        ))}
-                      </div>
-                   </div>
-                </div>
+                <ExpandedDetails employee={employee} stats={stats} />
               </motion.div>
             </td>
           </tr>
@@ -263,7 +359,6 @@ export const EmployeeTable = ({
 }: EmployeeTableProps) => {
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
   
-  // High-performance data processing
   const statsMap = useEmployeeStats(employees, attendanceData);
 
   if (loading) return <TableSkeleton />;
@@ -271,34 +366,56 @@ export const EmployeeTable = ({
   if (employees.length === 0) return <EmptyState />;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-colors duration-300">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-slate-50/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
-            <th className="py-4 px-6">Employee</th>
-            <th className="py-4 px-6">Status</th>
-            <th className="py-4 px-6">Today's Hours</th>
-            <th className="py-4 px-6">Performance</th>
-            <th className="py-4 px-6 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-          {employees.map((employee) => (
-            <EmployeeRow 
-              key={employee.id}
-              employee={employee}
-              stats={statsMap.get(employee.id)!}
-              isExpanded={expandedRow === employee.id}
-              onToggle={() => setExpandedRow(prev => prev === employee.id ? null : employee.id)}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      {/* 1. MOBILE VIEW (Cards Stack) - Visible only on small screens */}
+      <div className="block md:hidden space-y-4">
+        {employees.map((employee) => {
+           const stats = statsMap.get(employee.id)!;
+           const isActive = !!stats.todaysRecord && !stats.todaysRecord.checkOut;
+           
+           return (
+             <MobileEmployeeCard
+               key={employee.id}
+               employee={employee}
+               stats={stats}
+               isActive={isActive}
+               isExpanded={expandedRow === employee.id}
+               onToggle={() => setExpandedRow(prev => prev === employee.id ? null : employee.id)}
+             />
+           );
+        })}
+      </div>
+
+      {/* 2. DESKTOP VIEW (Table) - Hidden on small screens */}
+      <div className="hidden md:block overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-colors duration-300">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-slate-50/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold">
+              <th className="py-4 px-6">Employee</th>
+              <th className="py-4 px-6">Status</th>
+              <th className="py-4 px-6">Today's Hours</th>
+              <th className="py-4 px-6">Performance</th>
+              <th className="py-4 px-6 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            {employees.map((employee) => (
+              <DesktopEmployeeRow 
+                key={employee.id}
+                employee={employee}
+                stats={statsMap.get(employee.id)!}
+                isExpanded={expandedRow === employee.id}
+                onToggle={() => setExpandedRow(prev => prev === employee.id ? null : employee.id)}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 };
 
-// --- Sub-components (Clean code practice) ---
+// --- Sub-components ---
 
 const TableSkeleton = () => (
   <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
