@@ -17,7 +17,7 @@ import { User } from '@/types';
 // In a real app, this would come from an Auth Provider (NextAuth/Clerk)
 const MOCK_USERS: Record<'staff' | 'admin', User> = {
   staff: {
-    id: 'staff_01',
+    id: '1',
     name: 'Alex Johnson',
     email: 'alex.j@precision.inc',
     role: 'staff',
